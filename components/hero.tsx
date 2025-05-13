@@ -7,13 +7,13 @@ import { ArrowRight } from "lucide-react";
 // Array of icons with unique positions
 const floatingIcons = [
   { src: "/icons/music-svgrepo-com.svg", alt: "Music Icon", style: "top-1/2 left-44 w-4 h-4", parallax: 30 },
-  { src: "/icons/radio-svgrepo-com.svg", alt: "Radio Icon", style: "top-1/2 left-1/5 w-4 h-4", parallax: 20 },
+  { src: "/icons/radio-svgrepo-com.svg", alt: "Radio Icon", style: "top-1/2 right-40 w-4 h-4", parallax: 20 },
   { src: "/icons/lightbulb-alt-svgrepo-com.svg", alt: "Lightbulb Icon", style: "top-10 right-1/6 w-4 h-4", parallax: 25 },
   { src: "/icons/ghost-svgrepo-com.svg", alt: "Ghost Icon", style: "bottom-16 left-1/4 w-4 h-4", parallax: 18 },
   { src: "/icons/face-smile-svgrepo-com.svg", alt: "Smile Icon", style: "bottom-24 right-12 w-4 h-4", parallax: 22 },
   { src: "/icons/cloud-rain-alt-svgrepo-com.svg", alt: "Cloud Rain Icon", style: "top-20 right-1/3 w-4 h-4", parallax: 15 },
   { src: "/icons/music-svgrepo-com.svg", alt: "Music Icon", style: "bottom-32 left-1/2 w-4 h-4", parallax: 18 },
-  { src: "/icons/radio-svgrepo-com.svg", alt: "Radio Icon", style: "bottom-36 right-1/4 w-4 h-4", parallax: 20 },
+  { src: "/icons/radio-svgrepo-com.svg", alt: "Radio Icon", style: "bottom-36 right-40 w-4 h-4", parallax: 20 },
   { src: "/icons/lightbulb-alt-svgrepo-com.svg", alt: "Lightbulb Icon", style: "top-40 left-1/3 w-4 h-4", parallax: 22 },
   { src: "/icons/ghost-svgrepo-com.svg", alt: "Ghost Icon", style: "bottom-40 right-1/4 w-4 h-4", parallax: 16 },
   { src: "/icons/face-smile-svgrepo-com.svg", alt: "Smile Icon", style: "bottom-32 left-1/3 w-4 h-4", parallax: 24 },
@@ -42,42 +42,75 @@ export default function Hero() {
     >
       {/* Floating icons */}
       {floatingIcons.map((icon, idx) => {
-        const floatY = useSpring(0, { stiffness: 30, damping: 20 });
-        const rotate = useSpring(0, { stiffness: 30, damping: 20 });
-        const scale = useSpring(1, { stiffness: 30, damping: 20 });
+  const y = useSpring(0, { stiffness: 30, damping: 20 });
+  const x = useSpring(0, { stiffness: 30, damping: 20 });
+  const rotate = useSpring(0, { stiffness: 30, damping: 20 });
+  const scale = useSpring(1, { stiffness: 30, damping: 20 });
 
-        useEffect(() => {
-          let frame: number;
-          let t = Math.random() * 6;
+  useEffect(() => {
+    let frame: number;
+    let t = Math.random() * 10;
 
-          const animate = () => {
-            t += 0.016;
-            floatY.set(Math.sin(t * Math.PI * 2 / 10) * 80); // up/down
-            rotate.set((t * 360) / 10); // spin
-            scale.set(0.8 + Math.sin(t * Math.PI * 2 / 6) * 0.2); // shrink-grow
-            frame = requestAnimationFrame(animate);
-          };
+    // Pick a random animation type per icon
+    const animationType = idx % 5; // Can use random if you want true randomness
 
-          animate();
-          return () => cancelAnimationFrame(frame);
-        }, [floatY, rotate, scale]);
+    const animate = () => {
+      t += 0.016;
+    
+      // Common float for all icons
+      const floatY = Math.sin(t * 1.5) * 20;
+      y.set(floatY);
+    
+      // Add individual animations on top
+      switch (animationType) {
+        case 0:
+          // Subtle horizontal drift
+          x.set(Math.sin(t) * 10);
+          break;
+        case 1:
+          // Slow rotation
+          rotate.set((t * 45) % 360);
+          break;
+        case 2:
+          // Pulse
+          scale.set(1 + Math.sin(t * 2) * 0.2);
+          break;
+        case 3:
+          // Orbit-style motion
+          x.set(Math.cos(t) * 20);
+          y.set(floatY + Math.sin(t) * 10); // keep the base float, enhance Y
+          break;
+        case 4:
+          // Jitter effect
+          x.set(Math.sin(t * 10 + idx) * 5);
+          rotate.set(Math.sin(t * 2) * 10);
+          break;
+      }
+    
+      frame = requestAnimationFrame(animate);
+    };
+    
+    animate();
+    return () => cancelAnimationFrame(frame);
+  }, [x, y, rotate, scale]);
 
-        return (
-          <motion.img
-            key={icon.src + idx}
-            src={icon.src}
-            alt={icon.alt}
-            className={`pointer-events-none absolute ${icon.style} opacity-80 select-none mix-blend-multiply`}
-            style={{
-              y: floatY,
-              rotate,
-              scale,
-              filter: "drop-shadow(0 0 12px #a78bfa) saturate(2) brightness(1.2) hue-rotate(-20deg)",
-            }}
-            draggable={false}
-          />
-        );
-      })}
+  return (
+    <motion.img
+      key={icon.src + idx}
+      src={icon.src}
+      alt={icon.alt}
+      className={`pointer-events-none absolute ${icon.style.replace("w-4 h-4", "sm:w-8 sm:h-8")} h-4 w-4 opacity-80 select-none mix-blend-multiply`}
+      style={{
+        x,
+        y,
+        rotate,
+        scale,
+        filter: "drop-shadow(0 0 12px #a78bfa) saturate(2) brightness(1.2) hue-rotate(-20deg)",
+      }}
+      draggable={false}
+    />
+  );
+})}
 
       {/* Main content */}
       <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto">
