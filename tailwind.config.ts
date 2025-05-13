@@ -12,6 +12,9 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      animation:{
+        shrinkBounce: "shrinkBounce 2s ease-in-out infinite",
+      }
     },
   },
   plugins: [],
